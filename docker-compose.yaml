@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  next-app:
+    container_name: next-container
+    build:
+      context: .
+      dockerfile: prod.Dockerfile
+    restart: always
+    env_file:
+      - .env.production
+    expose:
+      - "3000"
+    networks:
+      - app-network
+
+  haproxy:
+    image: haproxy:latest
+    container_name: haproxy-reverse-proxy
+    ports:
+      - "8080:80"
+    volumes:
+      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    depends_on:
+      - next-app
+    networks:
+      - app-network
+
+networks:
+  app-network:
